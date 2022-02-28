@@ -64,3 +64,18 @@ done
 
 echo "Abricate annotation complete"
 conda deactivate
+
+# Predict viral contigs with DeepVirFinder
+conda activate deepvirfinder
+conda list
+mkdir 18.deepvirfinder
+
+for GENOME in *.fasta
+do
+	HEADER=$(echo ${GENOME} | sed 's/_polca.fasta//');
+	mkdir 18.deepvirfinder/${HEADER}
+	python dvf.py -i ${GENOME} -o 18.deepvirfinder/${HEADER}/ -l 300 -c $THREADS
+done
+
+echo "DeepVirFinder prediction complete"
+conda deactivate

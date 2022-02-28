@@ -1,6 +1,12 @@
 # microbiology-phd-code
 Code for Microbiology PhD Thesis - bioinformatic whole genome assembly, RNAseq data processing and analysis, 16S analysis, figures in R
 
+Scripts are divided into the following sections:
+
+1. [Whole genome assembly (WGA)](#whole-genome-assembly-wga-folder)
+2. [RNAseq](#rnaseq-folder)
+3. [Metagenomics](#metagenomics-folder)
+4. [Conda environments](#conda-environments-conda_envs-folder) 
 
 ## Whole genome assembly (WGA) folder
 
@@ -54,6 +60,14 @@ This script polishes long-read assemblies with short reads using [Polypolish](ht
 
 This script polishes long-read assemblies with short reads using [POLCA](https://github.com/alekseyzimin/masurca) ([DOI:10.1371/journal.pcbi.1007981](https://doi.org/10.1371/journal.pcbi.1007981). This script runs on assemblies that have already been polished by PolyPolish using WGA_polypolish.sh. 
 
+### WGA_pilon.sh
+
+After Medaka long-read polishing, an alternative to Polypolish & POLCA for polishing assemblies with Illumina reads is [Pilon](https://github.com/broadinstitute/pilon) ([DOI:10.1371/journal.pone.0112963](https://doi.org/10.1371/journal.pone.0112963)). The script makes use of the `insertsizeI.py` and `insertsizeX.py` scripts for determining the minimum and maximum insert size between paired end reads for the bowtie2 call. 
+
+### WGA_racon.sh
+
+After Medaka long-read polishing, an additional long-read polishing step can be done with [Racon](https://github.com/lbcb-sci/racon) ([DOI:10.1101/gr.214270.116](https://dx.doi.org/10.1101%2Fgr.214270.116)). 
+
 ### WGA_prokka.sh
 
 This script takes the completed and assembled genome and does some initial annotation and investigation:
@@ -64,6 +78,7 @@ This script takes the completed and assembled genome and does some initial annot
   - Plasmid replicon detection by [PlasmidFinder](https://cge.cbs.dtu.dk/services/PlasmidFinder/) ([DOI:10.1128/AAC.02412-14](https://doi.org/10.1128/aac.02412-14))
   - Antimicrobial resistance genes in [CARD](https://card.mcmaster.ca/) ([DOI:10.1093/nar/gkw1004](https://doi.org/10.1093/nar/gkw1004))
   - Antimicrobial resistance genes in [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/) ([DOI:10.1093/jac/dkaa345](https://doi.org/10.1093/jac/dkaa345))
+- Prediction of viral contigs using [DeepVirFinder](https://github.com/jessieren/DeepVirFinder) ([DOI:10.1007/s40484-019-0187-4](https://doi.org/10.1007/s40484-019-0187-4))
 
 ## RNAseq folder 
 
