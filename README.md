@@ -19,7 +19,7 @@ This script processes multiple raw .fastq files from the sequencers all the way 
 - Read quality metrics are assessed with [Nanopack](https://github.com/wdecoster/nanopack) ([DOI:10.1093/bioinformatics/bty149](https://doi.org/10.1093/bioinformatics/bty149)) 
 - Read subsets generated with [seqtk](https://github.com/lh3/seqtk)
 - Assemblies by [Flye](https://github.com/fenderglass/Flye) ([DOI:10.1038/s41587-019-0072-8](https://doi.org/10.1038/s41587-019-0072-8)) 
-- Assemblies by [Raven](https://github.com/lbcb-sci/raven) ([DOI:10.1038/s43588-021-00073-4]((http://dx.doi.org/10.1038/s43588-021-00073-4)))
+- Assemblies by [Raven](https://github.com/lbcb-sci/raven) ([DOI:10.1038/s43588-021-00073-4](http://dx.doi.org/10.1038/s43588-021-00073-4))
 - Assemblies by [Canu](https://github.com/marbl/canu) ([DOI:10.1101/gr.215087.116](https://doi.org/10.1101/gr.215087.116))
 - Assemblies by [Redbean/wtdbg2](https://github.com/ruanjue/wtdbg2) ([DOI:10.1038/s41592-019-0669-3](https://www.nature.com/articles/s41592-019-0669-3)) 
 - Assemblies by [Miniasm/minipolish](https://github.com/lh3/miniasm) ([DOI:10.1093/bioinformatics/btw152](https://doi.org/10.1093/bioinformatics/btw152))  
@@ -60,7 +60,7 @@ This script takes the completed and assembled genome and does some initial annot
 
 - Annotates using [Prokka](https://github.com/tseemann/prokka) ([DOI:10.1093/bioinformatics/btu153](https://doi.org/10.1093/bioinformatics/btu153))
 - Plasmid detection by [MOB-suite](https://github.com/phac-nml/mob-suite) ([DOI:10.1099/mgen.0.000206](https://doi.org/10.1099/mgen.0.000206))
-- Identification of the following through [Abricate](https://github.com/tseemann/abricate) ([DOI:]()) 
+- Identification of the following through [Abricate](https://github.com/tseemann/abricate)
   - Plasmid replicon detection by [PlasmidFinder](https://cge.cbs.dtu.dk/services/PlasmidFinder/) ([DOI:10.1128/AAC.02412-14](https://doi.org/10.1128/aac.02412-14))
   - Antimicrobial resistance genes in [CARD](https://card.mcmaster.ca/) ([DOI:10.1093/nar/gkw1004](https://doi.org/10.1093/nar/gkw1004))
   - Antimicrobial resistance genes in [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/) ([DOI:10.1093/jac/dkaa345](https://doi.org/10.1093/jac/dkaa345))
