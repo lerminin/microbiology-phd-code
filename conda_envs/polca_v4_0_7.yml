@@ -1,0 +1,25 @@
+name: polca_v4_0_7
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - boost-cpp=1.74.0=h359cf19_5
+  - bwa-mem2=2.2.1=h9a82719_1
+  - bzip2=1.0.8=h7f98852_4
+  - grep=3.4=h9d02d08_1
+  - icu=69.1=h9c3ff4c_0
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - libstdcxx-ng=11.2.0=he4da1e4_11
+  - libzlib=1.2.11=h36c2ea0_1013
+  - lz4-c=1.9.3=h9c3ff4c_1
+  - masurca=4.0.7=pl5262h86ccdc5_0
+  - pcre=8.45=h9c3ff4c_0
+  - perl=5.26.2=h36c2ea0_1008
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.11=h36c2ea0_1013
+  - zstd=1.5.2=ha95c52a_0
+prefix: /home/nicole/.conda/envs/polca_v4_0_7

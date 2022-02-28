@@ -1,0 +1,12 @@
+name: filtlong
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - filtlong=0.2.0=he941832_2
+  - libgcc-ng=9.2.0=hdf63c60_0
+  - libstdcxx-ng=9.2.0=hdf63c60_0
+  - zlib=1.2.11=h516909a_1006
+prefix: /opt/miniconda3/envs/filtlong

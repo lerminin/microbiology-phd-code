@@ -1,0 +1,15 @@
+name: raven_v1_7_0
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=1_gnu
+  - libgcc-ng=11.2.0=h1d223b6_11
+  - libgomp=11.2.0=h1d223b6_11
+  - libstdcxx-ng=11.2.0=he4da1e4_11
+  - libzlib=1.2.11=h36c2ea0_1013
+  - raven-assembler=1.7.0=h2e03b76_0
+  - zlib=1.2.11=h36c2ea0_1013
+prefix: /home/nicole/.conda/envs/raven_v1_7_0
