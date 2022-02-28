@@ -1,5 +1,5 @@
 # microbiology-phd-code
-Code for Microbiology PhD Thesis - bioinformatic whole genome assembly, 16S analysis, figures in R
+Code for Microbiology PhD Thesis - bioinformatic whole genome assembly, RNAseq data processing and analysis, 16S analysis, figures in R
 
 
 ## Whole genome assembly (WGA) folder
@@ -65,7 +65,29 @@ This script takes the completed and assembled genome and does some initial annot
   - Antimicrobial resistance genes in [CARD](https://card.mcmaster.ca/) ([DOI:10.1093/nar/gkw1004](https://doi.org/10.1093/nar/gkw1004))
   - Antimicrobial resistance genes in [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/) ([DOI:10.1093/jac/dkaa345](https://doi.org/10.1093/jac/dkaa345))
 
+## RNAseq folder 
+
+This folder contains scripts for processing and quantifying transcriptomes of a mixed-species bacterial culture generated from Illumina unpaired read sequencing data.  
+
+### READemption_analysis.sh
+
+This script runs the analysis pipeline [READemption](https://reademption.readthedocs.io/en/latest/) ([DOI:10.1093/bioinformatics/btu533](https://doi.org/10.1093/bioinformatics/btu533)) for quantifying RNAseq transcripts and assumes that the `create` command has already been run and that the input files are in the folder structure specified by the READemption documentation.
+
+In addition, this script shows how to make use of the cross-align clean option to eliminate reads that map to multiple replicons during the `align` step. 
+
+### polymicrobial_RNAseqanalysis.sh
+
+This script runs the analysis pipeline for quantifying RNAseq transcripts using the following programs:
+
+- Reads aligned to reference with [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) ([DOI:10.1038/nmeth.1923](https://doi.org/10.1038/nmeth.1923))
+- .sam files generated with [Samtools](http://www.htslib.org/doc/) ([DOI:10.1093/bioinformatics/btp352](https://doi.org/10.1093/bioinformatics/btp352))
+- TPMs and counts quantified with [Salmon](https://salmon.readthedocs.io/en/latest/salmon.html) ([DOI:10.1038/nmeth.4197](https://dx.doi.org/10.1038%2Fnmeth.4197))
+
+### DESeq2_analysis.R
+
+This script runs the the analysis for differentially expressed genes using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) ([DOI:10.18129/B9.bioc.DESeq2](https://doi.org/doi:10.18129/B9.bioc.DESeq2)) and produces diagnostic and results plots. 
+
 ## Conda environments (conda_envs) folder
 
-The scripts included here are dependent on conda environments run on a Linux Ubuntu x86_64 machine. The packages and versions for each environment used in the respective folders can be installed using the .yml files. 
+Many of the shell scripts included here are dependent on conda environments run on a Linux Ubuntu x86_64 machine. The packages and versions for each environment used in the respective folders can be installed using the .yml files. 
 
