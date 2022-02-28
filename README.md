@@ -87,6 +87,34 @@ This script runs the analysis pipeline for quantifying RNAseq transcripts using 
 
 This script runs the the analysis for differentially expressed genes using [DESeq2](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html) ([DOI:10.18129/B9.bioc.DESeq2](https://doi.org/doi:10.18129/B9.bioc.DESeq2)) and produces diagnostic and results plots. 
 
+## Metagenomics folder
+
+This folder contains scripts to assemble and investigate metagenomic DNA samples on a high performance computing cluster. 
+
+### megahit.sh
+
+This script assembles metagenomic Illumina paired end reads using [MEGAHIT](https://github.com/voutcn/megahit) ([DOI:10.1093/bioinformatics/btv033](https://doi.org/10.1093/bioinformatics/btv033)) with preset `meta-large`. 
+
+### pspades.sh
+
+This script assembles metagenomic Illumina paired end reads using [SPAdes](https://github.com/ablab/spades) ([DOI:10.1093/bioinformatics/btw493](https://doi.org/10.1093/bioinformatics/btw493)) with arguments `--meta` and `--plasmid`. 
+
+### idba.sh
+
+This script assembles metagenomic Illumina paired end reads using [IDBA-UD](https://github.com/loneknightpy/idba) ([DOI:10.1093/bioinformatics/bts174](https://doi.org/10.1093/bioinformatics/bts174)). 
+
+### kaiju_db_download.sh and kaiju_classify.sh
+
+This script downloads the database and classifies reads into taxonomic groups using [Kaiju](https://github.com/bioinformatics-centre/kaiju) ([DOI:10.1038/ncomms11257](https://www.nature.com/articles/ncomms11257)). 
+
+### kraken_classify.sh and kraken_db_download.sh
+
+This script downloads the database and classifies reads into taxonomic groups using [Kraken2](https://github.com/DerrickWood/kraken2) ([DOI:10.1186/s13059-019-1891-0](https://doi.org/10.1186/s13059-019-1891-0)). 
+
+### metaxa2.sh
+
+This script identifies the proportion of reads with small subunit and large subunit rRNA sequences using [METAXA2](https://microbiology.se/software/metaxa2/) ([DOI:10.1111/1755-0998.12399](https://doi.org/10.1111/1755-0998.12399)). 
+
 ## Conda environments (conda_envs) folder
 
 Many of the shell scripts included here are dependent on conda environments run on a Linux Ubuntu x86_64 machine. The packages and versions for each environment used in the respective folders can be installed using the .yml files. 
