@@ -1,0 +1,225 @@
+---
+title: "210428_16Sillumina_Tia"
+output: html_document
+---
+
+This document describes the workflow used to analyze 16S community data from dugout water samples in dada2 Run on Castor. Before starting, sequencing reads should be copied into your own folder. 
+
+This document is based on  the DADA2 tutorial (https://benjjneb.github.io/dada2/tutorial.html) and AstroBioMike's walkthrough (https://astrobiomike.github.io/amplicon/dada2_workflow_ex).
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+To combine data from multiple runs using the Big Data paired data workflow (http://benjjneb.github.io/dada2/bigdata_paired.html): This workflow is for combining data from multiple sequencing runs to be analyzed together. It performs filtering and infers sequence variants and error rates for each run separately, then all runs are combined for chimera removal, taxonomic identification, and contamination removal. Sequencing runs need to use the same filtering parameters.
+
+```{r dada2, eval=FALSE}
+R #version 4.1.2
+
+# In R:
+#BiocManager::install("dada2")
+library('dada2')
+packageVersion('dada2') #version 1.22.0
+#BiocManager::install("DECIPHER")
+library(DECIPHER)
+packageVersion("DECIPHER") #version 2.22.0
+#BiocManager::install("decontam")
+library(decontam)
+packageVersion("decontam") #version 1.14.0
+library(here)
+
+# Read in the names of your fastq files and do string manipulation to get matching lists of the forward and reverse reads. Change the pattern if your files aren't named like this
+fnFs <- sort(list.files(here("16S_220330"), pattern = "_R1_001.fastq.gz", full.names = TRUE))
+fnRs <- sort(list.files(here("16S_220330"), pattern = "_R2_001.fastq.gz", full.names = TRUE))
+sample.names <- sapply(strsplit(basename(fnFs), "_"), `[`, 1)
+
+# Visualize the quality profiles
+plotQualityProfile(fnFs[1:20])
+plotQualityProfile(fnRs[1:20])
+dev.off()
+
+# Assign names for the filtered fastq files and show where to put them. "filtered" makes a new folder for these files to go in to
+filtFs <- file.path(here("16S_220330", "filtered_F"), paste0(sample.names, "_F_filt.fastq.gz"))
+filtRs <- file.path(here("16S_220330", "filtered_R"), paste0(sample.names, "_R_filt.fastq.gz"))
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+
+# These are the default settings given by dada2
+# MaxN is the number of Ns you will allow (dada2 doesn't allow any, which is pretty stringent)
+# maxEE is the number of expected errors. This paper is their justification for using this: https://academic.oup.com/bioinformatics/article/31/21/3476/194979
+# using 2x250 set:
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxEE=c(2,2), truncQ=2, truncLen= c(240,160), maxN = 0, rm.phix=TRUE, compress=TRUE)
+# using 2x150 set:
+out <- filterAndTrim(fnFs, filtFs, fnRs, filtRs, maxEE=c(2,2), truncQ=2, trimLeft=c(19,20), maxN = 0, rm.phix=TRUE, compress=TRUE, multithread = 8)
+## trim Left is to remove the primers from the 220318 run
+head(out)
+
+##Visualize the new quality profiles
+plotQualityProfile(filtFs[1:20])
+plotQualityProfile(filtRs[1:20])
+dev.off()
+
+# For each run, infer sequence variants:
+# File parsing
+filtpathF <- here("16S_220330", "filtered_F") # CHANGE ME to the directory containing your filtered forward fastqs
+filtpathR <- here("16S_220330", "filtered_R") # CHANGE ME ...
+filtFs <- list.files(filtpathF, pattern="fastq.gz", full.names = TRUE)
+filtRs <- list.files(filtpathR, pattern="fastq.gz", full.names = TRUE)
+sample.names <- sapply(strsplit(basename(filtFs), "_"), `[`, 1) # Assumes filename = samplename_XXX.fastq.gz
+sample.namesR <- sapply(strsplit(basename(filtRs), "_"), `[`, 1) # Assumes filename = samplename_XXX.fastq.gz
+if(!identical(sample.names, sample.namesR)) stop("Forward and reverse files do not match.")
+names(filtFs) <- sample.names
+names(filtRs) <- sample.names
+set.seed(100)
+# Learn forward error rates
+errF <- learnErrors(filtFs, nbases=1e8, multithread=TRUE)
+# Learn reverse error rates
+errR <- learnErrors(filtRs, nbases=1e8, multithread=TRUE)
+# Sample inference and merger of paired-end reads
+mergers <- vector("list", length(sample.names))
+names(mergers) <- sample.names
+for(sam in sample.names) {
+  cat("Processing:", sam, "\n")
+    derepF <- derepFastq(filtFs[[sam]])
+    ddF <- dada(derepF, err=errF, multithread=8)
+    derepR <- derepFastq(filtRs[[sam]])
+    ddR <- dada(derepR, err=errR, multithread=8)
+    merger <- mergePairs(ddF, derepF, ddR, derepR, minOverlap=7)
+    mergers[[sam]] <- merger
+}
+rm(derepF); rm(derepR)
+# Construct sequence table and remove chimeras
+seqtab <- makeSequenceTable(mergers)
+saveRDS(seqtab, here("16S_220330", "seqtab_220330.rds")) # CHANGE ME to where you want sequence table saved
+
+# Merge multiple runs:
+
+st1 <- readRDS(here("16S_220318", "seqtab_220318.rds"))
+st2 <- readRDS(here("16S_201207", "seqtab_201207.rds"))
+st3 <- readRDS(here("16S_220330", "seqtab_220330.rds"))
+st.all <- mergeSequenceTables(st1, st2, st3)
+# Remove chimeras
+seqtab <- removeBimeraDenovo(st.all, method="consensus", multithread=TRUE)
+
+# # Assign taxonomy
+# #tax <- assignTaxonomy(seqtab, "path/to/silva_nr_v128_train_set.fa.gz", multithread=TRUE)
+# load("SILVA_SSU_r138_2019.RData")
+# dna <- DNAStringSet(getSequences(seqtab))
+# tax_info <- IdTaxa(test=dna, trainingSet=trainingSet, strand="both", processors=NULL) #NULL means use all threads
+# ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species")
+# 
+# # Convert the output object of class "Taxa" to a matrix analogous to the output from assignTaxonomy
+# taxid <- t(sapply(tax_info, function(x) {
+#   m <- match(ranks, x$rank)
+#   taxa <- x$taxon[m]
+#   taxa[startsWith(taxa, "unclassified_")] <- NA
+#   taxa
+# }))
+# 
+# # Renaming column and rows to make them easier to manage
+# colnames(taxid) <- ranks
+# asv_headers <- vector(dim(seqtab)[2], mode="character")
+# for (i in 1:dim(seqtab)[2]) {
+#   asv_headers[i] <- paste(">ASV", i, sep="_")
+# }
+# rownames(taxid) <- gsub(pattern=">", replacement="", x=asv_headers)
+# 
+# # Write to disk
+# saveRDS(seqtab, "seqtab_final.rds") # CHANGE ME to where you want sequence table saved
+# saveRDS(taxid, "tax_final.rds") # CHANGE ME ...
+# 
+# # To output .csv files:
+# 
+# # We need to make the taxid/taxa object a file. This file shows what each sequence was classified as. 
+# # giving our seq headers more manageable names (ASV_1, ASV_2...)
+# write.csv(taxid, 'Taxa.csv')
+# # Counts file - this seqtab.nochim object shows how many reads each sequence had
+# asv_seqs <- colnames(seqtab)
+# asv_tab <- t(seqtab)
+# row.names(asv_tab) <- sub(">", "", asv_headers)
+# write.csv(asv_tab, 'Counts.csv')
+# # Finally making and writing out a fasta of our final ASV seqs:
+# asv_fasta <- c(rbind(asv_headers, asv_seqs))
+# write(asv_fasta, "ASVs.fa")
+# 
+# # To remove contaminating sequences: 
+# 
+# # Indicate which of the samples are the neg controls (TRUE) or not (FALSE)
+# colnames(asv_tab)
+# vector_for_decontam <- c(rep(FALSE, 39), rep(TRUE, 1), rep(FALSE, 37), rep(TRUE, 1), rep(FALSE, 47), rep(TRUE, 2), rep(FALSE, 24), rep(TRUE, 2), rep(FALSE, 11), rep(TRUE,2), rep(FALSE,7))
+# contam_df <- isContaminant(t(asv_tab), neg=vector_for_decontam)
+# table(contam_df$contaminant) # only 4 ASVs for 201207 and 220318 combined
+# contam_asvs <- row.names(contam_df[contam_df$contaminant == TRUE, ])
+# taxid[row.names(taxid) %in% contam_asvs, ]
+# 
+# # Making new outputs without the contaminants
+# # Fasta:
+# contam_indices <- which(asv_fasta %in% paste0(">", contam_asvs))
+# dont_want <- sort(c(contam_indices, contam_indices + 1)) # removes index and sequence stored as two entries 
+# asv_fasta_no_contam <- asv_fasta[- dont_want]
+# write(asv_fasta_no_contam, "ASVs_no_contam.fa")
+# # Count:
+# asv_tab_no_contam <- asv_tab[!row.names(asv_tab) %in% contam_asvs, ]
+# write.csv(asv_tab_no_contam, "Counts_no_contam.csv")
+# # Taxa:
+# taxid_no_contam <- taxid[!row.names(taxid) %in% contam_asvs, ]
+# write.csv(taxid_no_contam, 'Taxa_no_contam.csv')
+
+```
+
+
+To use the assignTaxonomy function (not DECIPHER): this had better results (more classified than using DECIPHER above, so kept these results)
+
+```{r assigntax}
+
+# Merge multiple runs:
+
+st1 <- readRDS(here("16S_220318", "seqtab_220318.rds"))
+st2 <- readRDS(here("16S_201207", "seqtab_201207.rds"))
+st3 <- readRDS(here("16S_220330", "seqtab_220330.rds"))
+st.all <- mergeSequenceTables(st1, st2, st3)
+# Remove chimeras
+seqtab <- removeBimeraDenovo(st.all, method="consensus", multithread=6)
+saveRDS(seqtab, "seqtab_nochim.rds")
+
+# Assign taxonomy
+tax <- assignTaxonomy(seqtab, "silva_nr99_v138.1_train_set.fa.gz", multithread=6)
+tax <- addSpecies(tax, "silva_species_assignment_v138.1.fa.gz")
+
+# Renaming column and rows to make them easier to manage
+ranks <- c("domain", "phylum", "class", "order", "family", "genus", "species")
+colnames(tax) <- ranks
+asv_headers <- vector(dim(seqtab)[2], mode="character")
+for (i in 1:dim(seqtab)[2]) {
+  asv_headers[i] <- paste(">ASV", i, sep="_")
+}
+rownames(tax) <- gsub(pattern=">", replacement="", x=asv_headers)
+
+# Write to disk
+saveRDS(seqtab, "seqtab_final.rds") # CHANGE ME to where you want sequence table saved
+saveRDS(tax, "tax_final.rds")
+
+# Indicate which of the samples are the neg controls (TRUE) or not (FALSE)
+asv_seqs <- colnames(seqtab)
+asv_tab <- t(seqtab)
+row.names(asv_tab) <- sub(">", "", asv_headers)
+asv_fasta <- c(rbind(asv_headers, asv_seqs))
+colnames(asv_tab)
+vector_for_decontam <- c(rep(FALSE, 39), rep(TRUE, 1), rep(FALSE, 37), rep(TRUE, 1), rep(FALSE, 47), rep(TRUE, 2), rep(FALSE, 24), rep(TRUE, 2), rep(FALSE, 11), rep(TRUE,2), rep(FALSE,7))
+contam_df <- isContaminant(t(asv_tab), neg=vector_for_decontam)
+table(contam_df$contaminant) # only 4 ASVs for 201207 and 220318 combined
+contam_asvs <- row.names(contam_df[contam_df$contaminant == TRUE, ])
+tax[row.names(taxid) %in% contam_asvs, ]
+
+# Making new outputs without the contaminants
+# Fasta:
+contam_indices <- which(asv_fasta %in% paste0(">", contam_asvs))
+dont_want <- sort(c(contam_indices, contam_indices + 1)) # removes index and sequence stored as two entries 
+asv_fasta_no_contam <- asv_fasta[- dont_want]
+write(asv_fasta_no_contam, "ASVs_no_contam.fa")
+# Count:
+asv_tab_no_contam <- asv_tab[!row.names(asv_tab) %in% contam_asvs, ]
+write.csv(asv_tab_no_contam, "Counts_no_contam.csv")
+# Taxa:
+tax_no_contam <- tax[!row.names(tax) %in% contam_asvs, ]
+write.csv(tax_no_contam, 'Taxa_no_contam.csv')

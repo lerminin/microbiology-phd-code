@@ -6,7 +6,8 @@ Scripts are divided into the following sections:
 1. [Whole genome assembly (WGA)](#whole-genome-assembly-wga-folder)
 2. [RNAseq](#rnaseq-folder)
 3. [Metagenomics](#metagenomics-folder)
-4. [Conda environments](#conda-environments-conda_envs-folder) 
+4. [Community profiling (16S rRNA)](#community-profiling-16s-rrna-scripts)
+5. [Conda environments](#conda-environments-conda_envs-folder) 
 
 ## Whole genome assembly (WGA) folder
 
@@ -129,6 +130,18 @@ This script downloads the database and classifies reads into taxonomic groups us
 ### metaxa2.sh
 
 This script identifies the proportion of reads with small subunit and large subunit rRNA sequences using [METAXA2](https://microbiology.se/software/metaxa2/) ([DOI:10.1111/1755-0998.12399](https://doi.org/10.1111/1755-0998.12399)). 
+
+## Community profiling (16S rRNA) scripts 
+
+These scripts include data manipulation and cleaning for 16S rRNA community profiling with ASVs, as well as statistical analyses for diversity and making taxonomic plots. 
+
+### 16illumina_dada2.RMD
+
+This script processes Illumina paired-end sequencing data for ASV analysis using the R package [DADA2](https://benjjneb.github.io/dada2/index.html) ([DOI:10.1038/nmeth.3869](https://doi.org/10.1038/nmeth.3869)) and performs quality control checks for removing contaminating sequences in the negative control.
+
+### 16Sillumina_stats.R
+
+This script creates a [phyloseq](https://joey711.github.io/phyloseq/index.html) ([DOI:10.1371/journal.pone.0061217](https://doi.org/10.1371/journal.pone.0061217)) object and evaluates alpha diversity and beta diversity with [vegan](https://cran.r-project.org/web/packages/vegan/index.html), and plots taxonomic heatmaps with [ggplot2](https://ggplot2.tidyverse.org/).
 
 ## Conda environments (conda_envs) folder
 
